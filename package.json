@@ -1,0 +1,20 @@
+{
+  "name": "skillup-final-lab-node",
+  "version": "1.0.0",
+  "description": "Mini ecommerce para laboratório de observabilidade (Node + Express)",
+  "main": "app.js",
+  "scripts": {
+    "start:web": "node app.js",
+    "start:pay": "node payment-service.js",
+    "start:traffic": "node traffic/simulator.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "better-sqlite3": "^9.6.0",
+    "body-parser": "^1.20.3",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.21.1",
+    "morgan": "^1.10.0",
+    "nanoid": "^5.0.7"
+  }
+}
