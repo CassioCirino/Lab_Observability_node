@@ -1,58 +1,43 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_URL="https://github.com/CassioCirino/Lab_Observability_node.git"
-APP_DIR="/opt/skillup-final-lab-node"
+REPO_DIR="/opt/skillup-final-lab-node"
+SERVICE="skillup-web.service"
+BRANCH="main"
+APP_USER="ubuntu"
 
-log(){ echo -e "\033[1;32m[UPDATER]\033[0m $*"; }
-need_root(){ [ "$(id -u)" -eq 0 ] || { echo "Execute com sudo/root"; exit 1; }; }
+say(){ echo -e "\033[1;36m[updater]\033[0m $*"; }
 
-need_root
-export DEBIAN_FRONTEND=noninteractive
+say "Parando serviço..."
+sudo systemctl stop "$SERVICE" || true
 
-# deps mínimos
-if command -v apt-get >/dev/null 2>&1; then
-  apt-get update -y
-  apt-get install -y git curl ca-certificates
-elif command -v dnf >/dev/null 2>&1; then
-  dnf install -y git curl ca-certificates
-elif command -v yum >/dev/null 2>&1; then
-  yum install -y git curl ca-certificates
-fi
+say "Garantindo dono da pasta..."
+sudo chown -R "$APP_USER:$APP_USER" "$REPO_DIR"
 
-# garantir diretório e clone/update
-if [ ! -d "$APP_DIR" ]; then
-  mkdir -p "$APP_DIR"
-fi
+say "Atualizando código a partir do GitHub..."
+sudo -u "$APP_USER" git -C "$REPO_DIR" fetch --all --prune
+sudo -u "$APP_USER" git -C "$REPO_DIR" reset --hard "origin/$BRANCH"
 
-if [ -d "$APP_DIR/.git" ]; then
-  log "Atualizando código em $APP_DIR (git pull)..."
-  git -C "$APP_DIR" fetch origin
-  git -C "$APP_DIR" reset --hard origin/main
+say "Reinstalando dependências..."
+sudo -u "$APP_USER" rm -rf "$REPO_DIR/node_modules"
+sudo -u "$APP_USER" npm --prefix "$REPO_DIR" ci --no-audit --no-fund
+
+say "Daemon-reload e start..."
+sudo systemctl daemon-reload
+sudo systemctl start "$SERVICE"
+
+say "Aguardando subir..."
+sleep 2
+
+say "Health-check local:"
+if curl -sf http://127.0.0.1/health >/dev/null ; then
+  echo "OK"
 else
-  log "Clonando $REPO_URL para $APP_DIR ..."
-  rm -rf "$APP_DIR"
-  git clone "$REPO_URL" "$APP_DIR"
+  echo "ATENÇÃO: /health não respondeu (verifique logs)."
 fi
 
-# reinstalar deps só se necessário (mudança em package-lock ou package.json)
-cd "$APP_DIR"
-if [ -f package-lock.json ]; then
-  log "Executando npm ci ..."
-  npm ci --no-audit --no-fund
-else
-  log "Executando npm install ..."
-  npm install --no-audit --no-fund
-fi
+say "Porta 80:"
+sudo ss -lntp | grep ':80' || echo "Nada na :80"
 
-# reiniciar serviços
-log "Reiniciando serviços..."
-systemctl daemon-reload
-systemctl restart skillup-pay.service || true
-systemctl restart skillup-web.service || true
-
-log "Status breve:"
-systemctl --no-pager --full status skillup-web.service | sed -n '1,10p' || true
-systemctl --no-pager --full status skillup-pay.service | sed -n '1,10p' || true
-
-log "OK. Atualizado."
+say "Status do serviço:"
+sudo systemctl status "$SERVICE" -n 40 --no-pager || true
