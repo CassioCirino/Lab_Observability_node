@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <title>SkillUp Store</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="/public/styles.css" />
+</head>
+<body>
+  <header>
+    <h1>🛍️ SkillUp Store</h1>
+    <div class="userline">
+      <label>Nome do usuário (User Tag): </label>
+      <input id="username" placeholder="ex: Equipe_Alice" />
+      <button id="btnSaveUser">Aplicar</button>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2>Produtos</h2>
+      <div id="products" class="grid"></div>
+    </section>
+
+    <aside>
+      <h2>Carrinho</h2>
+      <ul id="cart"></ul>
+      <div class="total">
+        Total: R$ <span id="total">0,00</span>
+      </div>
+      <button id="checkout">Finalizar compra</button>
+      <div id="msg"></div>
+    </aside>
+  </main>
+
+  <footer>
+    <small>Simulador educacional para Observabilidade | DEM friendly</small>
+  </footer>
+
+  <script src="/public/main.js"></script>
+</body>
+</html>
