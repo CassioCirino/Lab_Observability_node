@@ -1,0 +1,15 @@
+[Unit]
+Description=Lab Observability Payment Mock
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/lab-observability/lab-observability
+Environment=PAY_PORT=3001
+ExecStart=/usr/bin/node /opt/lab-observability/lab-observability/payment-service.js
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
