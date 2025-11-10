@@ -1,0 +1,25 @@
+{
+  "name": "lab-observability",
+  "version": "1.0.0",
+  "description": "Lab Observability — E-commerce realista com DEM, Payment Mock, Admin e Telemetria JSON.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "pay": "node payment-service.js",
+    "migrate": "node db.js --migrate",
+    "seed": "node db.js --seed"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.3",
+    "cookie-parser": "^1.4.7",
+    "express": "^4.19.2",
+    "express-session": "^1.17.4",
+    "node-cron": "^3.0.3",
+    "sqlite3": "^5.1.7",
+    "uuid": "^9.0.1"
+  }
+}
