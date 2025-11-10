@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>LabStore — Catalog</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <script src="/assets/app.js"></script>
+  <!-- DTRUM_SNIPPET -->
+</head>
+<body>
+  <div class="header">
+    <div><strong>LabStore</strong> — Demo</div>
+    <div><a href="/public/admin.html" class="admin-badge">Admin</a></div>
+  </div>
+  <div class="container">
+    <h2>Produtos</h2>
+    <div id="products" class="grid"></div>
+  </div>
+
+  <script>
+    async function load() {
+      const items = await fetch('/api/products').then(r=>r.json());
+      const container = document.getElementById('products');
+      items.forEach(p=>{
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <img src="${p.image_url}" style="max-width:100%;height:150px;object-fit:cover;border-radius:6px">
+          <h3>${p.name}</h3>
+          <div class="small">${p.category}</div>
+          <div class="price">R$ ${(p.price_cents/100).toFixed(2)}</div>
+          <div style="margin-top:6px"><a class="btn" href="/product/${p.slug}">Ver</a></div>
+        `;
+        container.appendChild(div);
+      });
+    }
+    load();
+  </script>
+</body>
+</html>
