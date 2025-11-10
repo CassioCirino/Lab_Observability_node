@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Produto — LabStore</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <script src="/assets/app.js"></script>
+  <!-- DTRUM_SNIPPET -->
+</head>
+<body>
+  <div class="header"><div><a href="/">LabStore</a></div><div id="userPlace"></div></div>
+
+  <div class="container">
+    <div id="product" class="card">Carregando...</div>
+  </div>
+
+  <script>
+    async function load() {
+      const slug = location.pathname.split('/').pop();
+      const p = await fetch('/api/products/' + slug).then(r=>r.json());
+      const cont = document.getElementById('product');
+      if (!p || !p.id) { cont.innerHTML = 'Produto não encontrado'; return; }
+      cont.innerHTML = `
+        <img src="${p.image_url}" style="max-width:100%;height:280px;object-fit:cover;border-radius:6px">
+        <h2>${p.name}</h2>
+        <div class="small">${p.category} • estoque: ${p.stock}</div>
+        <p>${p.description}</p>
+        <div class="price">R$ ${(p.price_cents/100).toFixed(2)}</div>
+        <div style="margin-top:12px">
+          <button class="btn" onclick="buy(${p.id})">Comprar</button>
+        </div>
+      `;
+    }
+    async function buy(productId) {
+      const resp = await fetch('/api/cart/add', {method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({productId, qty:1})});
+      if (resp.status === 401) {
+        location.href = '/login';
+        return;
+      }
+      alert('Adicionado ao carrinho. Vá para checkout.');
+    }
+    load();
+  </script>
+</body>
+</html>
