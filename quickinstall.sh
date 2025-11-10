@@ -20,7 +20,7 @@ echo "[quickinstall] setting perms"
 sudo chown -R "$(whoami)":"$(whoami)" "$DEST"
 
 echo "[quickinstall] running install.sh"
-sudo bash -lc "$DEST/install.sh"
+sudo bash -lc "$DEST/lab-observability/install.sh"
 
 echo "[quickinstall] smoke tests:"
 echo " - local: curl -I http://127.0.0.1/"
