@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Order — LabStore</title>
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <div class="header"><div><a href="/">LabStore</a></div></div>
+  <div class="container">
+    <div class="card">
+      <h3>Pedido confirmado</h3>
+      <div id="content"></div>
+    </div>
+  </div>
+  <script>
+    const id = location.pathname.split('/').pop();
+    document.getElementById('content').innerText = 'Pedido ' + id + ' gravado.';
+  </script>
+</body>
+</html>
