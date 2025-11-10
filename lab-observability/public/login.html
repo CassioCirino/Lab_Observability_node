@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Login — LabStore</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <script src="/assets/app.js"></script>
+  <!-- DTRUM_SNIPPET -->
+</head>
+<body>
+  <div class="header"><div><a href="/">LabStore</a></div></div>
+  <div class="container">
+    <div class="card" style="max-width:420px;margin:auto">
+      <h3>Login</h3>
+      <form id="f">
+        <div><input id="username" placeholder="username" /></div>
+        <div><input id="password" type="password" placeholder="password" /></div>
+        <div style="margin-top:8px"><button class="btn" type="submit">Entrar</button></div>
+      </form>
+      <div style="margin-top:8px" class="small">Conta admin: <strong>admin</strong> / <strong>admin123</strong></div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('f').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const u = document.getElementById('username').value;
+      const p = document.getElementById('password').value;
+      const res = await fetch('/api/login', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({username:u,password:p})});
+      if (res.ok) {
+        location.href = '/';
+      } else {
+        alert('erro');
+      }
+    });
+  </script>
+</body>
+</html>
