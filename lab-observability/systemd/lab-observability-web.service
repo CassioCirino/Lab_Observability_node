@@ -1,0 +1,20 @@
+[Unit]
+Description=Lab Observability Web (lab-observability)
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/lab-observability/lab-observability
+Environment=PORT=3000
+Environment=PAY_PORT=3001
+Environment=PAY_ERROR_RATE=0
+Environment=ENABLE_VULN=false
+# Optionally set DTRUM_SNIPPET here
+# Environment=DTRUM_SNIPPET="<script>...</script>"
+ExecStart=/usr/bin/node /opt/lab-observability/lab-observability/app.js
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
