@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Admin — Lab Observability</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <script src="/assets/app.js"></script>
+  <!-- DTRUM_SNIPPET -->
+</head>
+<body>
+  <div class="header"><div>Lab Admin</div><div><a href="/" class="small">Voltar</a></div></div>
+  <div class="container">
+    <div class="card">
+      <h3>Admin — Simulador & Telemetria</h3>
+      <div>
+        <label>RUM Snippet:</label>
+        <textarea id="rum" style="width:100%;height:100px"></textarea>
+        <div style="margin-top:8px">
+          <button class="btn" onclick="saveRum()">Salvar Snippet</button>
+        </div>
+      </div>
+
+      <hr/>
+
+      <div>
+        <h4>Simulação DEM</h4>
+        <div>Base RPM: <input id="base" value="10"/></div>
+        <div>Duração (min): <input id="dur" value="60"/></div>
+        <div>Concorrência: <input id="conc" value="5"/></div>
+        <div>Error rate: <input id="er" value="0.0"/></div>
+        <div style="margin-top:8px">
+          <button class="btn" onclick="startSim()">Start</button>
+          <button class="btn" onclick="stopSim()">Stop</button>
+        </div>
+      </div>
+
+      <hr/>
+
+      <div>
+        <h4>Faults</h4>
+        <div>Enable simulated 500s? <select id="faultEnabled"><option value="0">No</option><option value="1">Yes</option></select></div>
+        <div>Error rate: <input id="faultRate" value="0.1"/></div>
+        <div style="margin-top:8px"><button class="btn" onclick="setFaults()">Aplicar</button></div>
+      </div>
+
+      <hr/>
+      <div>
+        <h4>Logs (tail)</h4>
+        <select id="logFile"><option value="sim.log">sim.log</option><option value="app.log">app.log</option><option value="pay.log">pay.log</option></select>
+        <div style="margin-top:8px"><button class="btn" onclick="tailLogs()">Mostrar</button></div>
+        <pre id="tail" style="max-height:200px;overflow:auto;background:#111;color:#bfc7d5;padding:10px;border-radius:6px"></pre>
+      </div>
+    </div>
+  </div>
+
+<script>
+async function saveRum(){
+  const snippet = document.getElementById('rum').value;
+  await fetch('/admin/rum', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({snippet})});
+  alert('saved');
+}
+async function startSim(){
+  const cfg = { durationMin: parseInt(document.getElementById('dur').value), baseRPM: parseInt(document.getElementById('base').value), users: parseInt(document.getElementById('conc').value), errorRate: parseFloat(document.getElementById('er').value) };
+  await fetch('/admin/sim/start', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(cfg)});
+  alert('sim start');
+}
+async function stopSim(){ await fetch('/admin/sim/stop', {method:'POST'}); alert('sim stopped'); }
+async function setFaults(){ const enabled = document.getElementById('faultEnabled').value; const rate = parseFloat(document.getElementById('faultRate').value); await fetch('/admin/faults', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({errorRate: rate, enabled: enabled==1})}); alert('faults applied'); }
+
+async function tailLogs(){
+  const file = document.getElementById('logFile').value;
+  const res = await fetch('/admin/logs?file=' + encodeURIComponent(file) + '&n=200');
+  const lines = await res.json();
+  document.getElementById('tail').innerText = lines.join("\n");
+}
+</script>
+</body>
+</html>
