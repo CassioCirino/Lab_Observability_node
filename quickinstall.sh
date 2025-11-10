@@ -20,6 +20,12 @@ echo "[quickinstall] setting perms"
 sudo chown -R "$(whoami)":"$(whoami)" "$DEST"
 
 echo "[quickinstall] running install.sh"
+# antes de executar, garantir o chmod
+# ...
+sudo chmod +x "$DEST/lab-observability/install.sh"
+sudo bash -lc "$DEST/lab-observability/install.sh"
+# ...
+
 sudo bash -lc "$DEST/lab-observability/install.sh"
 
 echo "[quickinstall] smoke tests:"
