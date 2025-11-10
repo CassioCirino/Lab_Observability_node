@@ -1,40 +1,30 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_URL="https://github.com/CassioCirino/Lab_Observability_node.git"
-DEST_DIR="/opt/skillup-final-lab-node"
+REPO="https://github.com/CassioCirino/Lab_Observability_node.git"
+DEST="/opt/lab-observability"
+BRANCH="main"
 
-log(){ echo -e "\033[1;32m[INFO]\033[0m $*"; }
-need_root(){ [ "$(id -u)" -eq 0 ] || { echo "Execute com sudo/root"; exit 1; }; }
-
-need_root
-export DEBIAN_FRONTEND=noninteractive
-
-# 1) deps básicos
-if command -v apt-get >/dev/null 2>&1; then
-  apt-get update -y
-  apt-get install -y git curl ca-certificates
-elif command -v dnf >/dev/null 2>&1; then
-  dnf install -y git curl ca-certificates
-elif command -v yum >/dev/null 2>&1; then
-  yum install -y git curl ca-certificates
-fi
-
-# 2) baixar/atualizar código
-if [ -d "$DEST_DIR/.git" ]; then
-  log "Atualizando código em $DEST_DIR"
-  git -C "$DEST_DIR" pull --ff-only
+echo "[quickinstall] starting"
+if [ ! -d "$DEST" ]; then
+  echo "[quickinstall] cloning repo to $DEST"
+  sudo git clone --depth=1 --branch "$BRANCH" "$REPO" "$DEST"
 else
-  log "Clonando para $DEST_DIR"
-  rm -rf "$DEST_DIR"
-  git clone "$REPO_URL" "$DEST_DIR"
+  echo "[quickinstall] repo exists, fetching latest"
+  cd "$DEST"
+  sudo git fetch --all
+  sudo git reset --hard "origin/$BRANCH"
 fi
 
-# 3) rodar instalador do projeto
-cd "$DEST_DIR"
-chmod +x install_node.sh
-log "Executando install_node.sh"
-sudo bash ./install_node.sh
+echo "[quickinstall] setting perms"
+sudo chown -R "$(whoami)":"$(whoami)" "$DEST"
 
-log "Pronto. Acesse:  http://<IP-PÚBLICO>/"
-log "Opcional (gerar tráfego):  nohup node $DEST_DIR/traffic/simulator.js >/tmp/traffic.log 2>&1 &"
+echo "[quickinstall] running install.sh"
+sudo bash -lc "$DEST/install.sh"
+
+echo "[quickinstall] smoke tests:"
+echo " - local: curl -I http://127.0.0.1/"
+echo " - public: curl -I http://<PUBLIC_IP>/"
+echo ""
+echo "Access the app at: http://<PUBLIC_IP>/"
+echo "[quickinstall] done"
