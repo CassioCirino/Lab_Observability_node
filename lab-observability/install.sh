@@ -76,6 +76,20 @@ systemctl enable --now lab-observability-pay.service || true
 chown -R "$(whoami)":"$(whoami)" "$REPO_DIR"
 chown -R "$(whoami)":"$(whoami)" /opt/lab-observability/data || true
 
+# 10) garantir porta 80 aberta mesmo sem UFW (idempotente)
+if ! command -v ufw >/dev/null 2>&1 || ! ufw status 2>/dev/null | grep -q "Status: active"; then
+  echo "[install] ensuring iptables INPUT rule for TCP/80"
+  iptables -C INPUT -p tcp --dport 80 -j ACCEPT 2>/dev/null || iptables -I INPUT -p tcp --dport 80 -j ACCEPT
+  iptables -C INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT 2>/dev/null || iptables -I INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+  if command -v netfilter-persistent >/dev/null 2>&1; then
+    netfilter-persistent save || true
+  else
+    mkdir -p /etc/iptables
+    iptables-save > /etc/iptables/rules.v4
+  fi
+fi
+
+
 echo "[install] smoke tests:"
 curl -I --retry 3 --retry-delay 2 --max-time 5 http://127.0.0.1/ || true
 
