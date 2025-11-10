@@ -1,0 +1,12 @@
+[Unit]
+Description=Normalize iptables NAT 80->3000 for Lab Observability
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash /opt/lab-observability/lab-observability/scripts/iptables-persist.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
